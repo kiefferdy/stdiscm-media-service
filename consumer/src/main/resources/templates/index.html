@@ -1,169 +1,224 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Media Upload Service</title>
-    <link rel="stylesheet" href="/webjars/bootstrap/5.2.3/css/bootstrap.min.css" />
+    <link
+      rel="stylesheet"
+      href="/webjars/bootstrap/5.2.3/css/bootstrap.min.css"
+    />
     <style>
-        .video-card {
-            position: relative;
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .video-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .thumbnail-container {
-            position: relative;
-            width: 100%;
-            height: 180px;
-            overflow: hidden;
-            background-color: #000;
-        }
-        
-        .thumbnail {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: opacity 0.3s ease;
-        }
-        
-        .preview-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .video-card:hover .thumbnail {
-            opacity: 0;
-        }
-        
-        .video-card:hover .preview-container {
-            opacity: 1;
-        }
-        
-        .preview-image {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-        
-        .video-info {
-            padding: 10px;
-            background-color: #f8f9fa;
-        }
-        
-        .video-title {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: bold;
-        }
-        
-        .video-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.9);
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            width: 80%;
-            max-width: 800px;
-        }
-        
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: white;
-            font-size: 30px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .queue-info {
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
+      .video-card {
+        position: relative;
+        margin-bottom: 20px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .video-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .thumbnail-container {
+        position: relative;
+        width: 100%;
+        height: 180px;
+        overflow: hidden;
+        background-color: #000;
+      }
+
+      .thumbnail {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 0.3s ease;
+      }
+
+      .preview-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .video-card:hover .thumbnail {
+        opacity: 0;
+      }
+
+      .video-card:hover .preview-container {
+        opacity: 1;
+      }
+
+      .preview-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+
+      .video-info {
+        padding: 10px;
+        background-color: #f8f9fa;
+      }
+
+      .video-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: bold;
+      }
+
+      .video-details {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #6c757d;
+      }
+
+      .video-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        width: 80%;
+        max-width: 800px;
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        color: white;
+        font-size: 30px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .queue-info {
+        margin-bottom: 20px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+      }
+
+      .queue-status {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .queue-status.available {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      .queue-status.full {
+        background-color: #f44336;
+        color: white;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container mt-4">
-        <h1 class="mb-4">Media Upload Service</h1>
-        
-        <div class="queue-info">
-            <h4>Queue Status</h4>
-            <div id="queue-status">
-                <p>Queue size: <span id="queue-size">-</span></p>
-                <p>Processed videos: <span id="processed-count">0</span></p>
-            </div>
+      <h1 class="mb-4">Media Upload Service</h1>
+
+      <div class="queue-info">
+        <h4>Queue Status</h4>
+        <div id="queue-status">
+          <div id="queue-status-indicator" class="queue-status available">
+            Queue: <span id="queue-status-text">Available</span>
+          </div>
+          <p>Processed videos: <span id="processed-count">0</span></p>
         </div>
-        
-        <div class="row" id="video-container">
-            <div class="col-md-4 mb-4" th:each="video : ${videos}">
-                <div class="video-card" th:attr="data-id=${video.id}">
-                    <div class="thumbnail-container">
-                        <img class="thumbnail" th:src="@{'/thumbnail/' + ${video.id}}" alt="Thumbnail">
-                        <div class="preview-container">
-                            <img class="preview-image" th:attr="data-video-id=${video.id}" src="" alt="Preview">
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h5 class="video-title" th:text="${video.fileName}">Video title</h5>
-                        <p class="video-upload-time" th:text="${#temporals.format(video.uploadTime, 'yyyy-MM-dd HH:mm')}">Upload time</p>
-                    </div>
-                </div>
+      </div>
+
+      <div class="row" id="video-container">
+        <div class="col-md-4 mb-4" th:each="video : ${videos}">
+          <div class="video-card" th:attr="data-id=${video.id}">
+            <div class="thumbnail-container">
+              <img
+                class="thumbnail"
+                th:src="@{'/thumbnail/' + ${video.id}}"
+                alt="Thumbnail"
+              />
+              <div class="preview-container">
+                <img
+                  class="preview-image"
+                  th:attr="data-video-id=${video.id}"
+                  src=""
+                  alt="Preview"
+                />
+              </div>
             </div>
+            <div class="video-info">
+              <h5 class="video-title" th:text="${video.fileName}">
+                Video title
+              </h5>
+              <div class="video-details">
+                <span
+                  class="video-upload-time"
+                  th:text="${#temporals.format(video.uploadTime, 'yyyy-MM-dd HH:mm')}"
+                  >Upload time</span
+                >
+                <span
+                  class="video-size"
+                  th:text="${#numbers.formatDecimal(video.fileSize/1048576, 1, 1) + ' MB'}"
+                  >File size</span
+                >
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-    
+
     <div id="video-modal" class="video-modal">
-        <span class="modal-close">&times;</span>
-        <div class="modal-content">
-            <video id="modal-video" controls width="100%">
-                Your browser does not support the video tag.
-            </video>
-        </div>
+      <span class="modal-close">&times;</span>
+      <div class="modal-content">
+        <video id="modal-video" controls width="100%">
+          Your browser does not support the video tag.
+        </video>
+      </div>
     </div>
-    
+
     <template id="video-card-template">
-        <div class="col-md-4 mb-4">
-            <div class="video-card">
-                <div class="thumbnail-container">
-                    <img class="thumbnail" src="" alt="Thumbnail">
-                    <div class="preview-container">
-                        <img class="preview-image" src="" alt="Preview">
-                    </div>
-                </div>
-                <div class="video-info">
-                    <h5 class="video-title"></h5>
-                    <p class="video-upload-time"></p>
-                </div>
+      <div class="col-md-4 mb-4">
+        <div class="video-card">
+          <div class="thumbnail-container">
+            <img class="thumbnail" src="" alt="Thumbnail" />
+            <div class="preview-container">
+              <img class="preview-image" src="" alt="Preview" />
             </div>
+          </div>
+          <div class="video-info">
+            <h5 class="video-title"></h5>
+            <div class="video-details">
+              <span class="video-upload-time"></span>
+              <span class="video-size"></span>
+            </div>
+          </div>
         </div>
+      </div>
     </template>
 
     <script src="/webjars/jquery/3.6.4/jquery.min.js"></script>
@@ -171,111 +226,135 @@
     <script src="/webjars/sockjs-client/1.5.1/sockjs.min.js"></script>
     <script src="/webjars/stomp-websocket/2.3.4/stomp.min.js"></script>
     <script>
-        $(document).ready(function() {
-            let stompClient = null;
-            let currentPreviewFrame = 0;
-            let previewInterval = null;
-            let processedCount = 0;
-            
-            // Connect to WebSocket
-            function connect() {
-                const socket = new SockJS('/media-service-websocket');
-                stompClient = Stomp.over(socket);
-                stompClient.connect({}, function() {
-                    console.log('Connected to WebSocket');
-                    
-                    // Subscribe to video updates
-                    stompClient.subscribe('/topic/videos', function(message) {
-                        const video = JSON.parse(message.body);
-                        addVideoCard(video);
-                        processedCount++;
-                        $('#processed-count').text(processedCount);
-                    });
-                    
-                    // Subscribe to queue status updates
-                    stompClient.subscribe('/topic/queue-status', function(message) {
-                        const status = JSON.parse(message.body);
-                        $('#queue-size').text(status.currentSize + '/' + status.maxSize);
-                    });
-                });
-            }
-            
-            function addVideoCard(video) {
-                const template = document.getElementById('video-card-template');
-                const clone = document.importNode(template.content, true);
-                
-                const videoCard = clone.querySelector('.video-card');
-                videoCard.dataset.id = video.id;
-                
-                const thumbnail = clone.querySelector('.thumbnail');
-                thumbnail.src = '/thumbnail/' + video.id;
-                
-                const previewImage = clone.querySelector('.preview-image');
-                previewImage.dataset.videoId = video.id;
-                
-                const title = clone.querySelector('.video-title');
-                title.textContent = video.fileName;
-                
-                const uploadTime = clone.querySelector('.video-upload-time');
-                const date = new Date(video.uploadTime);
-                uploadTime.textContent = date.toLocaleString();
-                
-                $('#video-container').prepend(clone);
-            }
-            
-            // Initialize preview hover functionality
-            function initializeVideoPreview() {
-                $(document).on('mouseenter', '.video-card', function() {
-                    const videoId = $(this).data('id');
-                    const previewImage = $(this).find('.preview-image');
-                    
-                    currentPreviewFrame = 0;
-                    previewImage.attr('src', '/preview/' + videoId + '/frame-00.jpg');
-                    
-                    clearInterval(previewInterval);
-                    previewInterval = setInterval(function() {
-                        currentPreviewFrame = (currentPreviewFrame + 1) % 10;
-                        const frameNum = currentPreviewFrame.toString().padStart(2, '0');
-                        previewImage.attr('src', '/preview/' + videoId + '/frame-' + frameNum + '.jpg');
-                    }, 1000); // Change frame every second
-                });
-                
-                $(document).on('mouseleave', '.video-card', function() {
-                    clearInterval(previewInterval);
-                });
-            }
-            
-            // Initialize video playback on click
-            function initializeVideoPlayback() {
-                $(document).on('click', '.video-card', function() {
-                    const videoId = $(this).data('id');
-                    const modal = $('#video-modal');
-                    const modalVideo = $('#modal-video');
-                    
-                    modalVideo.attr('src', '/video/' + videoId);
-                    modal.css('display', 'flex');
-                    modalVideo[0].play();
-                });
-                
-                $('.modal-close').on('click', function() {
-                    const modal = $('#video-modal');
-                    const modalVideo = $('#modal-video');
-                    
-                    modalVideo[0].pause();
-                    modalVideo.attr('src', '');
-                    modal.css('display', 'none');
-                });
-            }
-            
-            // Initialize the page
-            connect();
-            initializeVideoPreview();
-            initializeVideoPlayback();
-            
-            // Update the initial processed count
-            processedCount = $('#video-container .video-card').length;
-            $('#processed-count').text(processedCount);
-        });
+      $(document).ready(function () {
+        let stompClient = null;
+        let currentPreviewFrame = 0;
+        let previewInterval = null;
+        let processedCount = 0;
+
+        // Format file size in MB
+        function formatFileSize(bytes) {
+          return (bytes / 1048576).toFixed(1) + " MB";
+        }
+
+        // Connect to WebSocket
+        function connect() {
+          const socket = new SockJS("/media-service-websocket");
+          stompClient = Stomp.over(socket);
+          stompClient.connect({}, function () {
+            console.log("Connected to WebSocket");
+
+            // Subscribe to video updates
+            stompClient.subscribe("/topic/videos", function (message) {
+              const video = JSON.parse(message.body);
+              addVideoCard(video);
+              processedCount++;
+              $("#processed-count").text(processedCount);
+            });
+
+            stompClient.subscribe("/topic/queue-status", function (message) {
+              const status = JSON.parse(message.body);
+              
+              if (status.hasOwnProperty('isFull')) {
+                updateQueueStatus(status.isFull);
+              } else {
+                updateQueueStatus(status.remainingCapacity === 0);
+              }
+            });
+          });
+        }
+
+        function updateQueueStatus(isFull) {
+          const indicator = $("#queue-status-indicator");
+          const statusText = $("#queue-status-text");
+
+          if (isFull) {
+            indicator.removeClass("available").addClass("full");
+            statusText.text("Full");
+          } else {
+            indicator.removeClass("full").addClass("available");
+            statusText.text("Available");
+          }
+        }
+
+        function addVideoCard(video) {
+          const template = document.getElementById("video-card-template");
+          const clone = document.importNode(template.content, true);
+
+          const videoCard = clone.querySelector(".video-card");
+          videoCard.dataset.id = video.id;
+
+          const thumbnail = clone.querySelector(".thumbnail");
+          thumbnail.src = "/thumbnail/" + video.id;
+
+          const previewImage = clone.querySelector(".preview-image");
+          previewImage.dataset.videoId = video.id;
+
+          const title = clone.querySelector(".video-title");
+          title.textContent = video.fileName;
+
+          const uploadTime = clone.querySelector(".video-upload-time");
+          const date = new Date(video.uploadTime);
+          uploadTime.textContent = date.toLocaleString();
+
+          const sizeElement = clone.querySelector(".video-size");
+          sizeElement.textContent = formatFileSize(video.fileSize);
+
+          $("#video-container").prepend(clone);
+        }
+
+        function initializeVideoPreview() {
+          $(document).on("mouseenter", ".video-card", function () {
+            const videoId = $(this).data("id");
+            const previewImage = $(this).find(".preview-image");
+
+            currentPreviewFrame = 0;
+            previewImage.attr("src", "/preview/" + videoId + "/frame-00.jpg");
+
+            clearInterval(previewInterval);
+            previewInterval = setInterval(function () {
+              currentPreviewFrame = (currentPreviewFrame + 1) % 10;
+              const frameNum = currentPreviewFrame.toString().padStart(2, "0");
+              previewImage.attr(
+                "src",
+                "/preview/" + videoId + "/frame-" + frameNum + ".jpg"
+              );
+            }, 1000);
+          });
+
+          $(document).on("mouseleave", ".video-card", function () {
+            clearInterval(previewInterval);
+          });
+        }
+
+        function initializeVideoPlayback() {
+          $(document).on("click", ".video-card", function () {
+            const videoId = $(this).data("id");
+            const modal = $("#video-modal");
+            const modalVideo = $("#modal-video");
+
+            modalVideo.attr("src", "/video/" + videoId);
+            modal.css("display", "flex");
+            modalVideo[0].play();
+          });
+
+          $(".modal-close").on("click", function () {
+            const modal = $("#video-modal");
+            const modalVideo = $("#modal-video");
+
+            modalVideo[0].pause();
+            modalVideo.attr("src", "");
+            modal.css("display", "none");
+          });
+        }
+
+        connect();
+        initializeVideoPreview();
+        initializeVideoPlayback();
+
+        processedCount = $("#video-container .video-card").length;
+        $("#processed-count").text(processedCount);
+      });
     </script>
-</body>
+  </body>
 </html>
